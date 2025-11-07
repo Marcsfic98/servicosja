@@ -1,0 +1,102 @@
+/* Estilização base da página */ 
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+@font-face {
+    font-family: 'Okta Neue';
+    src: local('Okta Neue Regular'), local('Okta-Neue-Regular'),
+        url('../assets/fonts/OktaNeue-Regular.woff2') format('woff2'),
+        url('../assets/fonts/OktaNeue-Regular.woff') format('woff'),
+        url('../assets/fonts/OktaNeue-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+  }
+
+@font-face {
+    font-family: 'Okta Neue bold';
+    src: local('Okta Neue Bold'), local('Okta-Neue-Bold'),
+        url('../assets/fonts/OktaNeue-Bold.woff2') format('woff2'),
+        url('../assets/fonts/OktaNeue-Bold.woff') format('woff'),
+        url('../assets/fonts/OktaNeue-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+  }  
+
+@font-face {
+    font-family: 'Okta Neue italic';
+    src: local('Okta Neue Italic'), local('Okta-Neue-Italic'),
+        url('../assets/fonts/OktaNeue-RegularItalic.woff2') format('woff2'),
+        url('../assets/fonts/OktaNeue-RegularItalic.woff') format('woff'),
+        url('../assets/fonts/OktaNeue-RegularItalic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+  }  
+
+#root{
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+:root{
+    /* Padrão de cores do site */ 
+    --blue:#1700ad;
+    --orange:#ff432e;
+    --white: #fff ;
+
+    /* Padrão de fontes do site */ 
+    --font:'Okta Neue';
+    --font-bold:'Okta Neue bold';
+    --font-italic:'Okta Neue italic';
+}
+
+
+/* Estilização navbar */ 
+
+
+.navbarContainer{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.navbarContainer img{
+    width: 300px;
+    height: 100px;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.navLinkContainer{
+    display: flex;
+    gap: 25px;
+    font-family: var(--font);
+}
+
+.navLink{
+    text-decoration: none;
+    gap: 25px;
+    cursor: pointer;
+    color: var(--blue);
+}
+
+.navLinkSelect{
+    border-bottom: 3px solid var(--orange);
+    padding-bottom: 5px;
+}
+
+/*footer*/
+
+footer{
+    position: fixed;
+    bottom: 0;
+    height: 250px;
+    width: 100%;
+    background-color: var(--blue);
+}
+
+
+/* Inicie aqui o seu css */

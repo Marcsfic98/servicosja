@@ -92,3 +92,15 @@ git add . (Para Preparar os ficheiros para salvar)
 git commit -m "mensagem" (Para Salvar o teu progresso local)
 
 git push origin <nome-branch> (Para Enviar o teu trabalho para o GitHub)
+
+duplas:
+
+
+
+lider : abner / dupla: marcos e Gustavo / designer: abner e patrícia (2paginas)
+
+lider :Marcos / dupla: Miguel e cicero / designer: Matheus e batista (3 paginas)
+
+lider : ana /dupla: Fernanda e vinicius / designer:/lukas (2paginas)
+
+lider :bruno / dupla: cailane e vericimo /designer:/alana (2paginas)

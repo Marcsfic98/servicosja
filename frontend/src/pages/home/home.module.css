@@ -115,9 +115,9 @@
 
 .SponsoredBg{
     object-fit: contain;
-    width: 65%;
+    height: 95%;
     position: absolute;
-    right: 20px;
+    right: 80px;
     top: 10px;
     z-index: 1;
 }
@@ -202,6 +202,7 @@
     flex-direction: column;
     height: 500px;
     align-items: center;
+    z-index: 1000;
 }
 
 .commentsContainer h4{

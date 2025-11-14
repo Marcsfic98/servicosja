@@ -58,8 +58,14 @@
 }
 
 .imgUser {
-    width: 80%;
+    width: 70%;
     height: auto;
     
+}
+
+@media screen and (max-width:1280px) {
+    .imgUser {
+    width: 80%;
+}
 }
 

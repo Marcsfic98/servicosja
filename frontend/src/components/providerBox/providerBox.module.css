@@ -1,0 +1,63 @@
+.providerBox{
+    width: 30%;
+    height: 250px;
+    background-image: url('/img/banner/bgProvider.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    position: relative;
+}
+
+.providerBox img{
+    width: 43%;
+    border-radius: 50%;
+    position: absolute;
+    top: 4%;
+    left: 2%;
+}
+
+.providerInfos{
+    display: flex;
+    flex-direction: column;
+    margin-left: 50%;
+    margin-top: 5%;
+}
+
+.providerInfos h3{
+    font-family: var(--font);
+    font-size: 20px;
+}
+
+.providerInfos p{
+    font-family: var(--font);
+    font-size: 12px;
+}
+
+.providerResum{
+    margin-left: 2%;
+    margin-top:5%;
+    max-width: 150px;
+    font-size: 14px;
+}
+
+.starSponsored{
+    display: flex;
+    max-width: 200px;
+    gap: 8px;
+    padding-top:13% ;
+    color: #ffcd29;
+    font-size: 23px;
+    
+}
+
+
+@media screen and (max-width:1550px) {
+    .providerBox{
+        width: 40%;
+    }
+}
+
+@media screen and (max-width:1220px) {
+    .providerBox{
+        width: 60%;
+    }
+}

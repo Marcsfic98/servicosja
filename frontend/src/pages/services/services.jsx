@@ -1,3 +1,4 @@
+import ProviderBox from '../../components/providerBox/providerBox';
 import styles from './services.module.css'
 import { FaSearch ,FaStar } from "react-icons/fa";
 
@@ -24,7 +25,7 @@ export default function Services () {
                            <h4>Filtrar por:</h4>
 
                            <div className={styles.serviceClassificBox}>
-                                <h2>Classificação de Profissional</h2>
+                                <h2>Classificação de Profissionais</h2>
                                    <div className={styles.starSponsored}>
                                          <FaStar /><FaStar /><FaStar /><FaStar /><FaStar />
                                    </div>
@@ -56,58 +57,36 @@ export default function Services () {
                             <input type="checkbox" />
                             <span>Atende fim de semana</span>
                         </div>
-
-                        <div className={styles.serviceItem}>
-                            <input type="checkbox" />
-                            <span>Urgente/Imediato</span>
-                        </div>
-                        
-                    </div>
-
-                    <div className={styles.servicesList}>
-                        <h3>Tipo de atendimento</h3>
-                        <div className={styles.serviceItem}>
-                            <input type="checkbox" />
-                            <span>Online/Remoto</span>
-                        </div>
-
-                        <div className={styles.serviceItem}>
-                            <input type="checkbox" />
-                            <span>A domícilio</span>
-                        </div>
                         
                     </div>
 
 
 
-                      <div className={styles.servicesList}>
-                        <h3>Tempo de atendimento</h3>
-                        <div className={styles.serviceItem}>
-                            <input type="checkbox" />
-                            <span>Menos de 8h</span>
-                        </div>
-
-                        <div className={styles.serviceItem}>
-                            <input type="checkbox" />
-                            <span>Até 8h</span>
-                        </div>
-
-                         <div className={styles.serviceItem}>
-                            <input type="checkbox" />
-                            <span>Até 12h</span>
-                        </div>
-
-                         <div className={styles.serviceItem}>
-                            <input type="checkbox" />
-                            <span>Até 24h</span>
-                        </div>
-
                         
                         
-                    </div>
+                   
             </div>
 
-                
+                <section className={styles.providerContainer}>
+                    <ProviderBox/>
+                    <ProviderBox/>
+                    <ProviderBox/>
+                    <ProviderBox/>
+                    <ProviderBox/>
+                    <ProviderBox/>
+                    <ProviderBox/>
+                    <ProviderBox/>
+                    <ProviderBox/>
+                    <ProviderBox/>
+                    <ProviderBox/>
+                    <ProviderBox/>
+                    <ProviderBox/>
+                    <ProviderBox/>
+                    <ProviderBox/>
+                    <ProviderBox/>
+                    <ProviderBox/>
+                    <ProviderBox/>
+                </section>
             </div>
         </div>
     )

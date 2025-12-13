@@ -163,11 +163,12 @@
     }
 
     .logoContainer {
-    width: 200px;
-}
+        width: 200px;
+        text-align: center;
+    }
 
     .logoContainer img{
-        width: 100%;
+        width: 130px;
     }
 
     .infosContainer{
@@ -185,7 +186,20 @@
         display: none;
     }
 
+    .contacts p{
+        justify-content: center;
+    }
+
+    .flex{
+        justify-content: center;
+    }
+
+    .social{
+        text-align: center;
+    }
+
     .footerContainer{
+        flex-direction: column;
         padding: 20px 0;
     }
     

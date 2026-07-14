@@ -1,64 +1,63 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { FaUserAlt } from 'react-icons/fa';
+import { FaHelmetSafety } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
+import LoginProviderPopup from '../../components/loginProviderPopup/loginProviderPopup';
+import LoginUserPopup from '../../components/loginUserPopup/loginUserPopup';
+import { useAuth } from '../../context/AuthContext';
 import styles from './login.module.css';
 
-import { FaHelmetSafety } from "react-icons/fa6";
-import { FaUserAlt } from "react-icons/fa";
-
-import LoginUserPopup from '../../components/loginUserPopup/loginUserPopup';
-import LoginProviderPopup from '../../components/loginProviderPopup/loginProviderPopup';
-import { useAuth } from '../../context/AuthContext';
-
 export default function Login() {
-    const navigate = useNavigate();
-    const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
+  const [isUserPopupOpen, setIsUserPopupOpen] = useState(false);
+  const [isProviderPopupOpen, setIsProviderPopupOpen] = useState(false);
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            if (user?.tipo_usuario === 'prestador') {
-                navigate('/providerPerfil');
-            } else {
-                navigate('/userPerfil');
-            }
-        }
-    }, [isAuthenticated, user, navigate]);
+  // Redirect if already authenticated
+  if (isAuthenticated && user) {
+    const userType =
+      user.tipo_usuario === 'prestador' ? 'providerPerfil' : 'userPerfil';
+    navigate(`/${userType}`);
+    return null;
+  }
 
+  const handleOpenUserLogin = () => setIsUserPopupOpen(true);
+  const handleCloseUserLogin = () => setIsUserPopupOpen(false);
 
-    const [openUser, setOpenUser] = useState(false);
+  const handleOpenProviderLogin = () => setIsProviderPopupOpen(true);
+  const handleCloseProviderLogin = () => setIsProviderPopupOpen(false);
 
-    const handleCloseUser = () => {
-        setOpenUser(false);
-    }
+  return (
+    <div className={styles.loginContainer}>
+      <div
+        onClick={handleOpenProviderLogin}
+        className={styles.loginBoxProvider}
+        role="button"
+        tabIndex={0}
+      >
+        <h3>
+          <FaHelmetSafety />
+          Profissional
+        </h3>
+      </div>
 
-    const handleOpenUser = () => {
-        setOpenUser(true);
-    }
+      <div
+        onClick={handleOpenUserLogin}
+        className={styles.loginBoxUser}
+        role="button"
+        tabIndex={0}
+      >
+        <h3>
+          <FaUserAlt />
+          Cliente
+        </h3>
+      </div>
 
-    const [openProvider, setOpenProvider] = useState(false);
-
-    const handleCloseProvider = () => {
-        setOpenProvider(false);
-    }
-
-    const handleOpenProvider = () => {
-        setOpenProvider(true);
-    }
-
-  
-
-    return (
-        <div className={styles.loginContainer}>
-            <div onClick={handleOpenProvider} className={styles.loginBoxProvider}>
-                <h3><FaHelmetSafety />Profissional</h3>
-            </div>
-
-            <div onClick={handleOpenUser} className={styles.loginBoxUser}>
-                <h3> <FaUserAlt />Cliente</h3>
-            </div>
-
-            {/* Popups renderizados no final */}
-            <LoginUserPopup close={handleCloseUser} open={openUser} />
-            <LoginProviderPopup close={handleCloseProvider} open={openProvider} />
-        </div>
-    )
+      <LoginUserPopup close={handleCloseUserLogin} open={isUserPopupOpen} />
+      <LoginProviderPopup
+        close={handleCloseProviderLogin}
+        open={isProviderPopupOpen}
+      />
+    </div>
+  );
 }

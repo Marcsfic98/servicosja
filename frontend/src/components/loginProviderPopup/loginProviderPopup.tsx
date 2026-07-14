@@ -1,105 +1,135 @@
-import styles from './loginUserPopup.module.css';
 import { Dialog } from '@mui/material';
-import { useState } from 'react';
-import { IoExitOutline } from "react-icons/io5";
+import { ChangeEvent, FormEvent, useState } from 'react';
+import { IoExitOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router';
-import Loading2 from '../../pages/loading/loading2';
 import { useAuth } from '../../context/AuthContext';
-import ProviderServices from '../../services/provider';
+import Loading2 from '../../pages/loading/loading2';
+import styles from './loginUserPopup.module.css';
 
-export default function LoginProviderPopup({ open, close }) {
+interface LoginProviderPopupProps {
+  open: boolean;
+  close: () => void;
+}
 
-    const navigate = useNavigate();
-    const [providerLogin, setProviderLogin] = useState({});
-    const [error, setError] = useState(null);
+interface ProviderLoginState {
+  email: string;
+  password: string;
+}
 
-    const { login , loading2 } = useAuth();
-    const {} = ProviderServices()
+export default function LoginProviderPopup({
+  open,
+  close,
+}: LoginProviderPopupProps) {
+  const navigate = useNavigate();
+  const [providerLogin, setProviderLogin] = useState<ProviderLoginState>({
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState<string | null>(null);
 
-    const handleChangeLogin = (e) => {
-        const { name, value } = e.target;
+  const { login, isAuthenticating } = useAuth();
 
-        // Converte o email para minúsculas
-        const newValue = name === 'email' ? value.toLowerCase() : value;
+  const handleChangeLogin = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
 
-        setProviderLogin({
-            ...providerLogin,
-            [name]: newValue
-        });
+    const newValue = name === 'email' ? value.toLowerCase() : value;
+
+    setProviderLogin((prev) => ({
+      ...prev,
+      [name]: newValue,
+    }));
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+
+    try {
+      const result = await login({
+        email: providerLogin.email,
+        password: providerLogin.password,
+      });
+
+      close();
+
+      if (result.tipo_usuario === 'prestador') {
+        navigate('/providerPerfil');
+      } else {
+        navigate('/userPerfil');
+      }
+    } catch (err) {
+      console.error('Erro de login:', err);
+
+      if (typeof err === 'object' && err !== null && 'detail' in err) {
+        const detail = (err as { detail?: unknown }).detail;
+        setError(
+          typeof detail === 'string'
+            ? detail
+            : 'Falha no login. Verifique suas credenciais.',
+        );
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Falha no login. Verifique suas credenciais.');
+      }
     }
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError(null);
+  return (
+    <>
+      <Dialog className={styles.popupContainer} onClose={close} open={open}>
+        <div className={styles.popup}>
+          <div className={styles.popupMenu}>
+            <img src="/img/logo/logo.png" alt="Logo serviços já" />
 
-        try {
+            <div onClick={close} className={styles.exitIcon}>
+              <IoExitOutline />
+            </div>
+          </div>
 
-            const result = await login(providerLogin.email, providerLogin.password);
+          <div className={styles.popupBody}>
+            {isAuthenticating ? (
+              <Loading2 />
+            ) : (
+              <>
+                <h3>Acesse Sua Conta</h3>
+                <p>Entre com email e senha para ter acesso a sua conta</p>
 
-            close();
-            
-            
-            if (result.tipo_usuario === 'prestador') {
-                 navigate('/providerPerfil');
-            } else {
-                
-                 navigate('/userPerfil');
-            }
+                <form onSubmit={handleSubmit}>
+                  <input
+                    onChange={handleChangeLogin}
+                    name="email"
+                    type="email"
+                    placeholder="Email"
+                    required
+                  />
+                  <input
+                    onChange={handleChangeLogin}
+                    name="password"
+                    type="password"
+                    placeholder="Senha"
+                    required
+                  />
 
-        } catch (err) {
+                  {error && (
+                    <p style={{ color: 'red', margin: '10px 0' }}>{error}</p>
+                  )}
 
-            console.error('Erro de login:', err);
+                  <button type="submit">Entrar</button>
 
-            if (err.detail) {
-                setError(err.detail);
-            } else {
-                setError('Falha no login. Verifique suas credenciais.');
-            }
-        }
-    }
+                  <a href="#">Esqueceu a senha?</a>
+                </form>
+              </>
+            )}
+          </div>
 
-
-    return (
-        <>
-            <Dialog className={styles.popupContainer} onClose={close} open={open}>
-                <div className={styles.popup}>
-                    <div className={styles.popupMenu}>
-                        <img src="/img/logo/logo.png" alt="Logo serviços já" />
-
-                        <div onClick={close} className={styles.exitIcon}>
-                            <IoExitOutline />
-                        </div>
-                    </div>
-
-
-                    <div className={styles.popupBody}>
-                        {loading2 ? <Loading2 /> :
-                            <>
-                                <h3>Acesse Sua Conta</h3>
-                                <p>Entre com email e senha para ter acesso a sua conta</p>
-
-                                <form onSubmit={handleSubmit}>
-                                    <input onChange={handleChangeLogin} name='email' type="email" placeholder='Email' required />
-                                    <input onChange={handleChangeLogin} name='password' type="password" placeholder='Senha' required />
-
-                                    {error && <p style={{ color: 'red', margin: '10px 0' }}>{error}</p>}
-
-                                    <button type='submit'>Entrar</button>
-
-                                    <a href="#">Esqueceu a senha?</a>
-                                </form>
-                            </>
-                        }
-
-
-                    </div>
-
-                    <div className={styles.popupFooter}>
-                        <button onClick={() => navigate("/providerRegistration")}>Não Tem Uma Conta? Cadastre-se</button>
-                    </div>
-                </div>
-
-            </Dialog>
-        </>
-    )
+          <div className={styles.popupFooter}>
+            <button onClick={() => navigate('/providerRegistration')}>
+              Não Tem Uma Conta? Cadastre-se
+            </button>
+          </div>
+        </div>
+      </Dialog>
+    </>
+  );
 }

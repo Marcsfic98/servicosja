@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
 import AOS from 'aos';
-import 'aos/dist/aos.css'; 
-
-import { Outlet } from "react-router"
-import Navbar from "./components/navbar/navbar"
-import Footer from "./components/footer/footer"
-import Chatbot from "./components/chatbot/chatbot"
-import { ProviderProvider } from './context/providerSelected';
+import 'aos/dist/aos.css';
+import { Outlet } from 'react-router';
+import Navbar from './components/navbar/navbar';
+import Footer from './components/footer/footer';
+import Chatbot from './components/chatbot/chatbot';
+import { ProviderProvider } from './context/ProviderContext';
 import { AuthProvider } from './context/AuthContext';
 import 'leaflet/dist/leaflet.css';
 
@@ -15,27 +14,21 @@ import 'leaflet/dist/leaflet.css';
 
 
 export default function App() {
+    useEffect(() => {
+        AOS.init({
+            duration: 1000,
+            once: false,
+        });
+    }, []);
 
-  useEffect(() => {
-    AOS.init({
-     
-      duration: 1000, 
-      once: false, 
-    });
-
-    
-
-  }, []);
-
-
-  return (
-    <AuthProvider>
-      <ProviderProvider>
-          <Navbar/>
-          <Outlet/>
-          <Chatbot/>
-          <Footer/>
-      </ProviderProvider>
-    </AuthProvider>
-  )
+    return (
+        <AuthProvider>
+            <ProviderProvider>
+                <Navbar />
+                <Outlet />
+                <Chatbot />
+                <Footer />
+            </ProviderProvider>
+        </AuthProvider>
+    );
 }

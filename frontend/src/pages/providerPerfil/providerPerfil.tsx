@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import styles from './providerPerfil.module.css';
-import ProviderServices from '../../services/provider';
-import UserServices from '../../services/user';
+import useProviderServices from '../../services/useProviderService';
+import useUserServices from '../../services/useUserService';
 import { useNavigate } from 'react-router';
 import RatingChart from './RatingChart';
 import { FaEdit, FaSignOutAlt, FaTrash } from "react-icons/fa";
@@ -116,17 +116,17 @@ export default function ProviderPerfil({ userData = mockUserData }) {
         return `${styles.tab} ${activeTab === tab ? styles.active : ''}`;
     };
 
-    const { getMe } = UserServices();
+    const { fetchCurrentUser } = useUserServices();
 
     const {
-        getProviderPerfil,
-        getProviderSolicitations,
-        completeService,
+        fetchProviderProfile,
+        fetchProviderSolicitations,
+        markServiceAsCompleted,
         markServiceAsNotRealized,
         addPortfolioItem,
-        deletePortfolioItem,
+        removePortfolioItem,
         updateProviderProfile
-    } = ProviderServices()
+    } = useProviderServices()
 
     const { user, logout, loading } = useAuth();
     const profileId = user?.profile_id;
@@ -157,8 +157,8 @@ export default function ProviderPerfil({ userData = mockUserData }) {
         if (profileId) {
             try {
                 const [meData, providerData] = await Promise.all([
-                    getMe(),
-                    getProviderPerfil(profileId)
+                    fetchCurrentUser(),
+                    fetchProviderProfile(profileId)
                 ]);
 
                 // Extrai dados aninhados do perfil (prestador ou cliente)
@@ -183,11 +183,11 @@ export default function ProviderPerfil({ userData = mockUserData }) {
                 console.error(error);
             }
 
-            getProviderSolicitations()
+            fetchProviderSolicitations()
                 .then(data => setSolicitations(data))
                 .catch(err => console.error(err));
         }
-    }, [profileId, getProviderPerfil]);
+    }, [profileId, fetchProviderProfile]);
     
     // 3. Executa o Carregamento Inicial 
     useEffect(()=>{
@@ -313,7 +313,7 @@ export default function ProviderPerfil({ userData = mockUserData }) {
     const handleDeleteImage = async (id) => {
          setActionLoading(true);
          try {
-             await deletePortfolioItem(id);
+             await removePortfolioItem(id);
              setUserGalleryImages(prev => prev.filter(item => item.id !== id));
 
              if (currentMainImage === userGalleryImages.find(item => item.id === id)?.url) {
@@ -341,7 +341,7 @@ export default function ProviderPerfil({ userData = mockUserData }) {
     const handleCompleteService = async (id) => {
         if (window.confirm("Deseja marcar este serviço como concluído? Isso enviará uma mensagem para o cliente.")) {
              try {
-                 const result = await completeService(id);
+                 const result = await markServiceAsCompleted(id);
 
                  const link = result.whatsapp_url || result.whatsapp_link;
 

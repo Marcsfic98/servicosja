@@ -7,67 +7,20 @@ import {
 } from 'react-icons/fa';
 import { FaPhoneVolume } from 'react-icons/fa6';
 import { IoMdMail } from 'react-icons/io';
-import BannerHome from '../../components/bannerHome/bannerHome';
-import styles from './home.module.css';
-
-import { A11y, Navigation } from 'swiper/modules';
-import { Swiper, SwiperSlide } from 'swiper/react';
-
 import { useNavigate } from 'react-router';
 import 'swiper/css';
-
-import { useEffect, useState } from 'react';
-import { useProviderContext } from '../../context/providerSelected';
-import { Provider, Review } from '../../interfaces/providers.interface';
-import ProviderServices from '../../services/provider';
-
-const getImageUrl = (url: string) => {
-  if (!url) return '';
-
-  if (url.startsWith('http://127.0.0.1:8000')) {
-    return url.replace(
-      'http://127.0.0.1:8000',
-      'https://back-end-servicosja-api.onrender.com',
-    );
-  }
-  if (url.startsWith('http://localhost:8000')) {
-    return url.replace(
-      'http://localhost:8000',
-      'https://back-end-servicosja-api.onrender.com',
-    );
-  }
-
-  if (url.startsWith('http') || url.startsWith('blob:')) return url;
-  if (url.startsWith('/img') || url.startsWith('/assets')) return url;
-  return `https://back-end-servicosja-api.onrender.com${url}`;
-};
+import { A11y, Navigation } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import BannerHome from '../../components/bannerHome/bannerHome';
+import { useProviderContext } from '../../context/ProviderContext';
+import { useHomeData } from '../../hooks/useHomeData';
+import { normalizeImageUrlWithFallback } from '../../utils/imageUrlUtil';
+import styles from './home.module.css';
 
 export default function Home() {
   const navigate = useNavigate();
   const { setProviderSelected } = useProviderContext();
-
-  const { getBestRatedProviders, getReviews } = ProviderServices();
-
-  const [bestProviders, setBestProviders] = useState<Provider[]>([]);
-  const [topReviews, setTopReviews] = useState<Review[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const providers = await getBestRatedProviders();
-      if (providers && Array.isArray(providers)) {
-        setBestProviders(providers.slice(0, 6));
-      }
-
-      const reviews = await getReviews();
-      if (reviews && Array.isArray(reviews)) {
-        const sortedReviews = reviews.sort((a, b) => b.nota - a.nota);
-        setTopReviews(sortedReviews.slice(0, 6));
-      }
-
-      console.log(providers);
-    };
-    fetchData();
-  }, [getBestRatedProviders, getReviews]);
+  const { bestProviders, topReviews, isLoading } = useHomeData();
 
   return (
     <main className={styles.homeContainer}>
@@ -118,10 +71,7 @@ export default function Home() {
                   style={{ cursor: 'pointer' }}
                 >
                   <img
-                    src={
-                      getImageUrl(provider.foto || '') ||
-                      'img/exemples/Group 8.png'
-                    }
+                    src={normalizeImageUrlWithFallback(provider.foto)}
                     alt={provider.nome}
                     style={{ objectFit: 'cover' }}
                   />

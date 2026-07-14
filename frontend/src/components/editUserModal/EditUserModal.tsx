@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Dialog } from '@mui/material';
 import styles from './EditUserModal.module.css';
-import UserServices from '../../services/user';
+import useUserServices from '../../services/useUserService';
 
 import ImageCropModal from '../../utils/ImageCropModal'; 
 import Loading2 from '../../pages/loading/loading2';
@@ -163,7 +163,7 @@ export default function EditUserModal({ open, close, userData, onUpdate }) {
                 nome_completo: formData.nome_completo,
                 dt_nascimento: formData.dt_nascimento
             };
-            await updateUser(userPayload);
+            await updateCurrentUser(userPayload);
 
             const profileFormData = new FormData();
             

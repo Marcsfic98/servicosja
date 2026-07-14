@@ -4,10 +4,10 @@ import styles from './userPerfil.module.css';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { FaSignOutAlt, FaEdit } from "react-icons/fa";
-import UserServices from '../../services/user';
-import ProviderServices from '../../services/provider';
+import useUserServices from '../../services/useUserService';
+import useProviderServices from '../../services/useProviderService';
 import EditUserModal from '../../components/editUserModal/EditUserModal';
-import { useProviderContext } from '../../context/providerSelected';
+import { useProviderContext } from '../../context/ProviderContext';
 import ProviderBox from '../../components/providerBox/providerBox';
 
 const ReviewModal = ({ open, close, onSubmit }) => {
@@ -134,13 +134,13 @@ export default function UserPerfil({ userData = mockUserData }) {
     const [favorites, setFavorites] = useState([]);
 
     const { setProviderSelected } = useProviderContext();
-    const { getMe, getClientSolicitations, createReview, getUserReviews, getFavorites } = UserServices();
-    const { getProviderByUserId } = ProviderServices();
+    const { fetchCurrentUser, fetchClientSolicitations, submitReview, fetchUserReviews, fetchFavoriteProviders } = useUserServices();
+    const { fetchProviderByUserId } = useProviderServices();
 
     useEffect(() => {
         if (!isAuthenticated) return;
 
-        getMe()
+        fetchCurrentUser()
             .then(data => {
                 setProfileData(data);
             })
@@ -148,7 +148,7 @@ export default function UserPerfil({ userData = mockUserData }) {
                 console.error("Erro ao buscar dados do perfil:", err);
             });
 
-        getUserReviews()
+        fetchUserReviews()
             .then(data => {
                 let reviewsList = [];
                 if (Array.isArray(data)) {
@@ -162,7 +162,7 @@ export default function UserPerfil({ userData = mockUserData }) {
             })
             .catch(err => console.error("Erro ao buscar avaliações:", err));
 
-        getClientSolicitations()
+        fetchClientSolicitations()
             .then(data => {
                 if (Array.isArray(data)) {
                     const pending = data.filter(s => s.servico_realizado && !s.avaliacao_realizada);
@@ -181,7 +181,7 @@ export default function UserPerfil({ userData = mockUserData }) {
             .catch(err => console.error("Erro ao buscar solicitações:", err));
 
         if (user?.tipo_usuario === 'cliente') {
-            getFavorites()
+            fetchFavoriteProviders()
                 .then(data => {
                     let favsList = [];
                     if (Array.isArray(data)) {
@@ -202,7 +202,7 @@ export default function UserPerfil({ userData = mockUserData }) {
 
     const handleSubmitReview = async (rating, comment) => {
         try {
-            await createReview({
+            await submitReview({
                 solicitacao_contato_id: selectedSolicitacaoId,
                 nota: rating,
                 comentario: comment
@@ -221,14 +221,14 @@ export default function UserPerfil({ userData = mockUserData }) {
     };
 
     const handleUpdateProfile = () => {
-        getMe().then(data => setProfileData(data));
+        fetchCurrentUser().then(data => setProfileData(data));
     };
 
     const handleNavigateToProvider = async (review) => {
         const initialId = review.prestador_id || review.prestador?.id || (typeof review.prestador === 'number' ? review.prestador : null);
 
         if (initialId) {
-            const providerProfile = await getProviderByUserId(initialId);
+            const providerProfile = await fetchProviderByUserId(initialId);
 
             if (providerProfile && providerProfile.id) {
                 setProviderSelected(providerProfile);

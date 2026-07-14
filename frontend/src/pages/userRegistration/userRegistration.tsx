@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { IMaskInput } from 'react-imask';
 import { useNavigate } from 'react-router-dom';
 import styles from './Registration.module.css';
-import UserServices from '../../services/user';
+import useUserServices from '../../services/useUserService';
 import Loading from '../loading/loading';
 import Loading2 from '../loading/loading2'; // 👈 NOVO: Componente para Mobile Loading
 import { useAuth } from '../../context/AuthContext';
@@ -35,7 +35,7 @@ export default function UserRegistration() {
     const [formDataUser, setFormDataUser] = useState({});
     const [formErrors, setFormErrors] = useState({}); 
 
-    const {register , loading} = UserServices();
+    const { registerClient, loading } = useUserServices();
     
 
     const handleChangeSetDataUser = useCallback((e) => {

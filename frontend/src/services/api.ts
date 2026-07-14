@@ -1,77 +1,106 @@
+import { AuthData } from '../models';
+
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
-const getAuthData = () => {
+interface FetchOptions extends RequestInit {
+    body?: string | FormData | null;
+}
+
+/**
+ * Retrieve auth data from localStorage
+ */
+const getStoredAuthData = (): AuthData | null => {
     const stored = localStorage.getItem('auth');
     try {
         return stored ? JSON.parse(stored) : null;
-    } catch (e) {
+    } catch (error) {
+        console.error('Error parsing stored auth data:', error);
         return null;
     }
 };
 
-const setAuthData = (data) => {
+/**
+ * Store auth data to localStorage
+ */
+const saveAuthDataToStorage = (data: AuthData): void => {
     localStorage.setItem('auth', JSON.stringify(data));
 };
 
-const clearAuthData = () => {
+/**
+ * Clear auth data from localStorage
+ */
+const clearStoredAuthData = (): void => {
     localStorage.removeItem('auth');
 };
 
-const refreshToken = async () => {
-    const authData = getAuthData();
+/**
+ * Refresh access token using refresh token
+ */
+const refreshAccessToken = async (): Promise<string> => {
+    const authData = getStoredAuthData();
     if (!authData || !authData.refresh) {
-        throw new Error("No refresh token available");
+        throw new Error('No refresh token available');
     }
 
     try {
         const response = await fetch(`${API_URL}/auth/token/refresh/`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ refresh: authData.refresh })
+            body: JSON.stringify({ refresh: authData.refresh }),
         });
 
-        const data = await response.json();
+        const data: Partial<AuthData> = await response.json();
 
         if (!response.ok) {
             throw data;
         }
 
-        const newAuthData = {
-            ...authData,
-            access: data.access,
-            refresh: data.refresh || authData.refresh
+        const newAuthData: AuthData = {
+            access: data.access || '',
+            refresh: data.refresh || authData.refresh,
+            tipo_usuario: authData.tipo_usuario,
         };
 
-        setAuthData(newAuthData);
+        saveAuthDataToStorage(newAuthData);
         return newAuthData.access;
-
     } catch (error) {
-        console.error("Failed to refresh token", error);
-        clearAuthData();
+        console.error('Failed to refresh token:', error);
+        clearStoredAuthData();
         window.location.href = '/';
         throw error;
     }
 };
 
-export const apiRequest = async (endpoint, options = {}) => {
-    const authData = getAuthData();
-    let token = authData ? authData.access : null;
+/**
+ * Make API request with automatic token refresh on 401
+ * @param endpoint - API endpoint path
+ * @param options - Fetch options (method, body, headers, etc.)
+ * @returns - Parsed JSON response
+ */
+export const apiRequest = async <T = unknown>(
+    endpoint: string,
+    options: FetchOptions = {}
+): Promise<T> => {
+    const authData = getStoredAuthData();
+    let token = authData?.access || null;
 
-    const headers = { ...options.headers };
+    const headers: Record<string, string> = { ...options.headers } as Record<string, string>;
 
+    // Set Content-Type for JSON requests (not for FormData)
     if (!(options.body instanceof FormData) && !headers['Content-Type']) {
         headers['Content-Type'] = 'application/json';
     }
 
+    // Add authorization header if token exists
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const config = {
+    const config: FetchOptions = {
         ...options,
-        headers
+        headers,
     };
 
     let url = endpoint;
@@ -81,11 +110,13 @@ export const apiRequest = async (endpoint, options = {}) => {
 
     let response = await fetch(url, config);
 
+    // Handle 401 Unauthorized - try to refresh token
     if (response.status === 401) {
-        if (!endpoint.includes('auth/token/refresh') && !endpoint.includes('auth/token/login')) {
+        const isAuthEndpoint = endpoint.includes('auth/token/refresh') || endpoint.includes('auth/token/login');
+        if (!isAuthEndpoint) {
             try {
-                token = await refreshToken();
-                config.headers['Authorization'] = `Bearer ${token}`;
+                token = await refreshAccessToken();
+                headers['Authorization'] = `Bearer ${token}`;
                 response = await fetch(url, config);
             } catch (refreshError) {
                 throw refreshError;
@@ -93,24 +124,30 @@ export const apiRequest = async (endpoint, options = {}) => {
         }
     }
 
+    // Handle non-2xx responses
     if (!response.ok) {
-        let errorResult;
+        let errorResult: unknown;
         try {
             errorResult = await response.json();
-        } catch (e) {
-            errorResult = { message: response.statusText, status: response.status };
+        } catch {
+            errorResult = {
+                message: response.statusText,
+                status: response.status,
+            };
         }
         throw errorResult;
     }
 
+    // Handle 204 No Content
     if (response.status === 204) {
-        return null;
+        return null as T;
     }
 
+    // Parse and return response
     try {
-        const result = await response.json();
+        const result: T = await response.json();
         return result;
-    } catch (e) {
-        return null;
+    } catch {
+        return null as T;
     }
 };

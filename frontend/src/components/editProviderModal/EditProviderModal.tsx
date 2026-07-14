@@ -2,9 +2,9 @@ import { useState, useEffect, useMemo } from 'react';
 import { Dialog } from '@mui/material';
 import styles from './EditProviderModal.module.css';
 import { useAuth } from '../../context/AuthContext';
-import UserServices from '../../services/user';
-import ProviderServices from '../../services/provider';
-import CategoryServices from '../../services/categories';
+import useUserServices from '../../services/useUserService';
+import useProviderServices from '../../services/useProviderService';
+import useCategoryServices from '../../services/useCategoryService';
 import Loading2 from '../../pages/loading/loading2';
 
 const getErrorMessage = (formErrors, fieldName) => {
@@ -45,15 +45,15 @@ export default function EditProviderModal({ open, close, providerData, onUpdate 
     }, [previewUrl]);
 
 
-    const { updateUser, getMe } = UserServices();
-    const { updateProviderProfile } = ProviderServices();
-    const { getCategories, categories } = CategoryServices();
+    const { fetchCurrentUser, updateCurrentUser } = useUserServices();
+    const { updateProviderProfile } = useProviderServices();
+    const { fetchCategories, categories } = useCategoryServices();
     const { user, setAuthData } = useAuth();
 
     useEffect(() => {
         if (open) {
-            getCategories();
-            getMe()
+            fetchCategories();
+            fetchCurrentUser()
                 .then((userData) => {
                     const perfil = userData.perfil_prestador || {};
                     setFormData({
@@ -77,7 +77,7 @@ export default function EditProviderModal({ open, close, providerData, onUpdate 
                     console.error("Erro ao carregar dados do usuário:", error);
                 });
         }
-    }, [open, getCategories, getMe]);
+    }, [open, fetchCategories, fetchCurrentUser]);
 
     const availableServices = useMemo(() => {
         if (!formData.categoria) return [];
@@ -137,7 +137,7 @@ export default function EditProviderModal({ open, close, providerData, onUpdate 
                 }
             };
 
-            const updatedUser = await updateUser(payload);
+            const updatedUser = await updateCurrentUser(payload);
 
             if (selectedPhoto) {
                 const photoFormData = new FormData();

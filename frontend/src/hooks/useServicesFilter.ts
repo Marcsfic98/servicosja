@@ -1,7 +1,7 @@
-import { useState, useCallback, useEffect } from 'react';
-import useProviderServices from '../services/useProviderService';
+import { useCallback, useEffect, useState } from 'react';
+import { Category, Location, Provider, ProviderFilters } from '../models';
 import useCategoryServices from '../services/useCategoryService';
-import { Provider, ProviderFilters, Category, Location } from '../models';
+import useProviderServices from '../services/useProviderService';
 
 /**
  * useServicesFilter Hook
@@ -70,14 +70,71 @@ export function useServicesFilter(): UseServicesFilterReturn {
     const { categories, loadingCategories: isLoadingCategories, fetchCategories } =
         useCategoryServices();
 
-    // Load categories and initial providers on mount
+    // Load categories on mount
     useEffect(() => {
         fetchCategories();
-        fetchAllProviders();
-    }, []);
+    }, [fetchCategories]);
 
     /**
-     * Select category and clear filters
+     * Apply current filter configuration
+     */
+    const handleApplyFilters = useCallback(async () => {
+        const filters: ProviderFilters = {
+            material: filtersMaterial,
+            hours24: filtersHours24,
+            weekend: filtersWeekend,
+            service: selectedServiceId,
+            category: selectedCategoryId?.toString() || undefined,
+            minRating: selectedRating,
+            orderByDistance: filtersOrderByDistance,
+            orderByRating: filtersOrderByRating,
+            latitude: userLocation?.latitude,
+            longitude: userLocation?.longitude,
+            searchTerm: searchQuery.trim() || undefined,
+        };
+
+        await fetchFilteredProviders(filters);
+    }, [
+        filtersMaterial,
+        filtersHours24,
+        filtersWeekend,
+        selectedServiceId,
+        selectedCategoryId,
+        selectedRating,
+        filtersOrderByDistance,
+        filtersOrderByRating,
+        userLocation,
+        searchQuery,
+        fetchFilteredProviders,
+    ]);
+
+    /**
+     * Automatic Filter Trigger
+     * Re-runs the request whenever any selection changes or after typing delay
+     */
+    useEffect(() => {
+        // Debounce apenas para a busca por texto (espera 500ms após parar de digitar)
+        const timer = setTimeout(() => {
+            handleApplyFilters();
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [
+        selectedCategoryId,
+        selectedServiceId,
+        selectedRating,
+        filtersMaterial,
+        filtersHours24,
+        filtersWeekend,
+        filtersOrderByDistance,
+        filtersOrderByRating,
+        userLocation,
+        searchQuery,
+        handleApplyFilters,
+    ]);
+
+    /**
+     * Select category and clear sub-service selection
      */
     const handleSelectCategory = useCallback((categoryId: number | null) => {
         setSelectedCategoryId(categoryId);
@@ -179,40 +236,7 @@ export function useServicesFilter(): UseServicesFilterReturn {
         setFiltersOrderByRating(null);
         setUserLocation(null);
         fetchAllProviders();
-    }, []);
-
-    /**
-     * Apply current filter configuration
-     */
-    const handleApplyFilters = useCallback(async () => {
-        const filters: ProviderFilters = {
-            material: filtersMaterial,
-            hours24: filtersHours24,
-            weekend: filtersWeekend,
-            service: selectedServiceId,
-            category: selectedCategoryId?.toString() || undefined,
-            minRating: selectedRating,
-            orderByDistance: filtersOrderByDistance,
-            orderByRating: filtersOrderByRating,
-            latitude: userLocation?.latitude,
-            longitude: userLocation?.longitude,
-            searchTerm: searchQuery || undefined,
-        };
-
-        await fetchFilteredProviders(filters);
-    }, [
-        filtersMaterial,
-        filtersHours24,
-        filtersWeekend,
-        selectedServiceId,
-        selectedCategoryId,
-        selectedRating,
-        filtersOrderByDistance,
-        filtersOrderByRating,
-        userLocation,
-        searchQuery,
-        fetchFilteredProviders,
-    ]);
+    }, [fetchAllProviders]);
 
     return {
         // State

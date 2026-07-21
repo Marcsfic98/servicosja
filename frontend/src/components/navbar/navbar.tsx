@@ -1,10 +1,10 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import styles from './navbar.module.css';
-import { FaRegUser, FaSignOutAlt } from "react-icons/fa";
 import { Drawer } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { FaRegUser, FaSignOutAlt } from "react-icons/fa";
 import { TiThMenu } from "react-icons/ti";
-import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import styles from './navbar.module.css';
 
 export default function Navbar () {
     const { user, isAuthenticated, logout } = useAuth();
@@ -56,7 +56,7 @@ export default function Navbar () {
         }
     }, [lastScrollY]); 
 
-    const isNavLinkActive = (path) => {
+    const isNavLinkActive = (path: string) => {
     
         if (path === '/') {
             return currentPath === path;
@@ -65,7 +65,7 @@ export default function Navbar () {
         return currentPath.startsWith(path);
     };
 
-    const getLinkClassName = (path) => {
+    const getLinkClassName = (path:string) => {
         let className = styles.navLink;
         if (isNavLinkActive(path)) {
             className = `${className} ${styles.navLinkSelect}`;
